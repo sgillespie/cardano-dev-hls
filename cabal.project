@@ -1,0 +1,6 @@
+packages: ./*.cabal
+
+index-state: 2024-04-17T17:36:00Z
+
+tests: True
+test-show-details: direct
