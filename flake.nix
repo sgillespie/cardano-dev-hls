@@ -3,12 +3,17 @@
     haskellNix.url = "github:input-output-hk/haskell.nix";
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    iohkNix.url = "github:input-output-hk/iohk-nix";
+    chap = {
+      url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, haskellNix }@attrs:
+  outputs = { self, nixpkgs, flake-utils, haskellNix, iohkNix, ... }@attrs:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [
+        overlays = builtins.attrValues (iohkNix.overlays) ++ [
           haskellNix.overlay
 
           (final: prev: {
@@ -16,6 +21,8 @@
               final.haskell-nix.cabalProject' {
                 src = ./.;
                 compiler-nix-name = "ghc96";
+
+                inputMap = { "https://chap.intersectmbo.org/" = attrs.chap; };
 
                 # This is used by `nix develop .` to open a shell for use with
                 # `cabal`, `hlint` and `haskell-language-server`
